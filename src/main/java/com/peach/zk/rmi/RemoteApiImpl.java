@@ -8,10 +8,11 @@ import java.rmi.server.UnicastRemoteObject;
  */
 public class RemoteApiImpl extends UnicastRemoteObject implements RemoteApi {
 
-    protected RemoteApiImpl() throws RemoteException {
+    public RemoteApiImpl() throws RemoteException {
     }
 
-    public void saveName(String name) throws RemoteException {
+    public String saveName(String name) throws RemoteException {
         System.out.println("save name is " + name);
+        return "save name is " + name;
     }
 }

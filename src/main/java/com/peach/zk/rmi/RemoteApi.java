@@ -8,5 +8,5 @@ import java.rmi.RemoteException;
  */
 public interface RemoteApi extends Remote {
 
-    void saveName(String name) throws RemoteException;
+    String saveName(String name) throws RemoteException;
 }

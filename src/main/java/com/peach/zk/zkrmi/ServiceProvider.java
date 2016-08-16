@@ -2,7 +2,9 @@ package com.peach.zk.zkrmi;
 
 
 import com.peach.zk.constant.Constant;
+import com.peach.zk.util.ZkUtil;
 import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,7 @@ public class ServiceProvider {
     public void publish(Remote remote, String host, int port) {
         String url = publishService(remote, host, port);
         if (url != null) {
-            ZooKeeper zk = connectServer();
+            ZooKeeper zk = ZkUtil.connectServer(latch);
             if (zk != null) {
                 createNode(zk, url);
             }
@@ -34,30 +36,20 @@ public class ServiceProvider {
         byte[] data = url.getBytes();
         try {
             //创建一个临时性且有序的Znode
+            Stat stat = zk.exists(Constant.ZK_REGISTRY_PATH, false);
+            if(stat == null){
+                zk.create(Constant.ZK_REGISTRY_PATH, data,
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            }
             String path = zk.create(Constant.ZK_PROVIDER_PATH, data,
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
-            logger.debug("create zookeeper node({} => {})", path, url);
+            logger.info("create zookeeper node({} => {})", path, url);
         } catch (Exception e) {
             logger.error("", e);
         }
     }
 
-    private ZooKeeper connectServer() {
-        ZooKeeper zk = null;
-        try {
-            zk = new ZooKeeper(Constant.ZK_CONNECTION_STRING, Constant.ZK_SESSION_TIMEOUT, new Watcher() {
-                public void process(WatchedEvent watchedEvent) {
-                    if (watchedEvent.getState() == Event.KeeperState.SyncConnected) {
-                        latch.countDown();
-                    }
-                }
-            });
-            latch.await();
-        } catch (Exception e) {
-            logger.error("", e);
-        }
-        return zk;
-    }
+
 
     private String publishService(Remote remote, String host, int port) {
         String url = null;
@@ -65,7 +57,7 @@ public class ServiceProvider {
             url = String.format("rmi://%s:%s/%s", host, port, remote.getClass().getName());
             LocateRegistry.createRegistry(port);
             Naming.rebind(url, remote);
-            logger.debug("publish rmi service (url: {})", url);
+            logger.info("publish rmi service (url: {})", url);
         } catch (Exception e) {
             logger.error("", e);
         }
