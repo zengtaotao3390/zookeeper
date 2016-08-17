@@ -26,13 +26,10 @@ public class ServiceConsumer {
     private CountDownLatch countDownLatch = new CountDownLatch(1);
     //用于保存最近的rmi地址(考虑到该变量或许会被其它线程所修改，一旦修改后，该变量的值会影响到所有线程）
     private volatile List<String> urlList = new ArrayList<String>();
+    ZooKeeper zk = null;
 
     public ServiceConsumer() throws InterruptedException {
-        ZooKeeper zk = ZkUtil.connectServer(countDownLatch);
-        if (zk != null) {
-            watchNode(zk);
-            zk.close();
-        }
+         zk = ZkUtil.connectServer(countDownLatch);
     }
 
     //查找RMI服务
@@ -73,6 +70,13 @@ public class ServiceConsumer {
         return remote;
     }
 
+    void watchNode(){
+        if (zk != null) {
+            watchNode(zk);
+        }else {
+            zk = ZkUtil.connectServer(new CountDownLatch(1));
+        }
+    }
     private void watchNode(final ZooKeeper zk) {
 
         try {
