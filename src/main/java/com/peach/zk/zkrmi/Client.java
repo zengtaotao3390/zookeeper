@@ -9,8 +9,8 @@ import java.rmi.RemoteException;
  */
 public class Client {
     public static void main(String[] args) throws RemoteException, InterruptedException {
-            ServiceConsumer consumer = new ServiceConsumer();
-        while (true){
+        ServiceConsumer consumer = new ServiceConsumer();
+        while (true) {
             consumer.watchNode();
             RemoteApi remoteApi = consumer.lookup();
             String retMsg = remoteApi.saveName("bigPeach");

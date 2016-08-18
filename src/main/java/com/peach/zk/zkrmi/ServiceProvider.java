@@ -38,7 +38,7 @@ public class ServiceProvider {
             //创建一个临时性且有序的Znode
             Stat stat = zk.exists(Constant.ZK_REGISTRY_PATH, false);
             if(stat == null){
-                zk.create(Constant.ZK_REGISTRY_PATH, data,
+                String parentPath = zk.create(Constant.ZK_REGISTRY_PATH, data,
                         ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
             String path = zk.create(Constant.ZK_PROVIDER_PATH, data,

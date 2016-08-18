@@ -89,6 +89,7 @@ public class ServiceConsumer {
                 }
             });
             List<String> dataList = new ArrayList<String>();
+            //createNode 是得到的路劲包含父路劲，然而getChildren时得到的只有子路劲
             for (String node : nodeList) {
                 byte[] data = zk.getData(Constant.ZK_REGISTRY_PATH + "/" + node, false, null);
                 dataList.add(new String(data));
