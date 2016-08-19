@@ -36,6 +36,7 @@ public class ServiceProvider {
         byte[] data = url.getBytes();
         try {
             //创建一个临时性且有序的Znode
+            long sessionid = zk.getSessionId();
             Stat stat = zk.exists(Constant.ZK_REGISTRY_PATH, false);
             if(stat == null){
                 String parentPath = zk.create(Constant.ZK_REGISTRY_PATH, data,
