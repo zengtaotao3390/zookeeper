@@ -28,7 +28,7 @@ public interface LockListener {
      * call back called when the lock 
      * is acquired
      */
-    public void lockAcquired();
+    public void lockAcquired() throws InterruptedException;
     
     /**
      * call back called when the lock is 

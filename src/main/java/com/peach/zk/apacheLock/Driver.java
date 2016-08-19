@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zengtao on 2016/8/18.
@@ -21,8 +22,9 @@ public class Driver {
             logger.info("start");
             WriteLock writeLock = new WriteLock(zk, "/apache_lock", null, new LockListener() {
                 @Override
-                public void lockAcquired() {
+                public void lockAcquired() throws InterruptedException {
                     logger.info("太开心了，我获得锁了");
+                    Thread.sleep(10000);
                     countDownLatch.countDown();
                 }
 
@@ -32,7 +34,7 @@ public class Driver {
                 }
             });
             writeLock.lock();
-            countDownLatch.await();
+            countDownLatch.await(120000, TimeUnit.MILLISECONDS);
             zk.close();
         }
 
