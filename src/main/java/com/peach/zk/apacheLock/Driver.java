@@ -15,16 +15,18 @@ import java.util.concurrent.TimeUnit;
 public class Driver {
     public static final Logger logger = LoggerFactory.getLogger(Driver.class);
 
+    //在同一时刻，只存在一个最小的节点，所以不存在会有两个进程同时执行的情况。
     public static void main(String[] args) throws KeeperException, InterruptedException {
         while (true) {
             final CountDownLatch countDownLatch = new CountDownLatch(1);
-            ZooKeeper zk = ZkUtil.connectServer(new CountDownLatch(1));
+            final ZooKeeper zk = ZkUtil.connectServer();
             logger.info("start");
             WriteLock writeLock = new WriteLock(zk, "/apache_lock", null, new LockListener() {
                 @Override
                 public void lockAcquired() throws InterruptedException {
                     logger.info("太开心了，我获得锁了");
                     countDownLatch.countDown();
+
                 }
 
                 @Override
@@ -38,6 +40,7 @@ public class Driver {
             //然后使用一个连接不停的请求，不用每次都去建立一个连接，可以避免这样的问题发生。
             countDownLatch.await(6000, TimeUnit.MILLISECONDS);
             zk.close();
+
         }
 
     }

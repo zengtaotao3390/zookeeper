@@ -19,13 +19,11 @@ import java.util.concurrent.CountDownLatch;
 public class ServiceProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceProvider.class);
-    //闭锁，用于等待事件的发生，可以用在异步操作
-    private CountDownLatch latch = new CountDownLatch(1);
 
     public void publish(Remote remote, String host, int port) {
         String url = publishService(remote, host, port);
         if (url != null) {
-            ZooKeeper zk = ZkUtil.connectServer(latch);
+            ZooKeeper zk = ZkUtil.connectServer();
             if (zk != null) {
                 createNode(zk, url);
             }

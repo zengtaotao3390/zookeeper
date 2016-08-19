@@ -13,7 +13,6 @@ import java.net.MalformedURLException;
 import java.rmi.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -22,14 +21,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ServiceConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceConsumer.class);
-    //用于等待SyncConnected事件触发后继续执行当前线程
-    private CountDownLatch countDownLatch = new CountDownLatch(1);
     //用于保存最近的rmi地址(考虑到该变量或许会被其它线程所修改，一旦修改后，该变量的值会影响到所有线程）
     private volatile List<String> urlList = new ArrayList<String>();
     ZooKeeper zk = null;
 
     public ServiceConsumer() throws InterruptedException {
-         zk = ZkUtil.connectServer(countDownLatch);
+        zk = ZkUtil.connectServer();
     }
 
     //查找RMI服务
@@ -58,9 +55,9 @@ public class ServiceConsumer {
             logger.error("", e);
             //若连接中断，则使用urlList中第一个RMI地址来查找
             //简单的重试方式，确保不会抛出异常
-            if(e instanceof ConnectException){
+            if (e instanceof ConnectException) {
                 logger.error("ConnectException -> url: {}", url);
-                if(urlList.size() != 0){
+                if (urlList.size() != 0) {
                     url = urlList.get(0);
                     return lookupService(url);
                 }
@@ -70,13 +67,14 @@ public class ServiceConsumer {
         return remote;
     }
 
-    void watchNode(){
-        if (zk != null) {
+    void watchNode() {
+        if (zk != null && ZooKeeper.States.CONNECTED == zk.getState()) {
             watchNode(zk);
-        }else {
-            zk = ZkUtil.connectServer(new CountDownLatch(1));
+        } else {
+            zk = ZkUtil.connectServer();
         }
     }
+
     private void watchNode(final ZooKeeper zk) {
 
         try {

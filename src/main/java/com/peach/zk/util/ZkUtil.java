@@ -17,7 +17,8 @@ public class ZkUtil {
     private static final Logger logger = LoggerFactory.getLogger(ZkUtil.class);
 
     //保证只要一个连接被创建，加一把锁
-    public static synchronized ZooKeeper connectServer(final CountDownLatch latch) {
+    private static final CountDownLatch latch = new CountDownLatch(1);
+    public static synchronized ZooKeeper connectServer( ) {
         ZooKeeper zk = null;
         try {
             zk = new ZooKeeper(Constant.ZK_CONNECTION_STRING, Constant.ZK_SESSION_TIMEOUT, new Watcher() {
