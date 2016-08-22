@@ -60,13 +60,13 @@ public class DistributedLock {
                     callback();
                     break;
                 case -1:
-                    logger.error("|| has unknown bug");
+                    logger.error("||unknown bug");
                     break;
                 default:
                     String preChildren = sortedChildren.get(index - 1);
                     Stat stat = zk.exists(preChildren, new NodeChangeWatcher());
                     if (stat == null) {
-                        logger.warn("node {} had bean deleted", preChildren);
+                        logger.warn("node {} has bean deleted", preChildren);
 //                        Thread.sleep(3000);
                         lock();
                     }

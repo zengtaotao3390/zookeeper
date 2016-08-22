@@ -24,7 +24,7 @@ public class Driver {
 
                 @Override
                 public void lockReleased() {
-                    System.out.println("|| lock delete");
+                    System.out.println("|| lock released");
                 }
             });
             distributedLock.getLock();

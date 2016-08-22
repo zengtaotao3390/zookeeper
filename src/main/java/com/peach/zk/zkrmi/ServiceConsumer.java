@@ -82,6 +82,7 @@ public class ServiceConsumer {
                 public void process(WatchedEvent watchedEvent) {
                     if (watchedEvent.getType() == Event.EventType.NodeChildrenChanged) {
                         //如果子节点有变化，则重新调用该方法（为了获取最新的子节点中的数据）
+                        //所关注的节点的子节点有变化。这里说的变化是指子节点的个数和组成，具体到子节点内容的变化是不会通知的。
                         watchNode(zk);
                     }
                 }
