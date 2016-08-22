@@ -4,8 +4,6 @@ import com.peach.zk.apacheLock.LockListener;
 import com.peach.zk.util.ZkUtil;
 import org.apache.zookeeper.ZooKeeper;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Created by zengtao on 2016/8/19.
  */

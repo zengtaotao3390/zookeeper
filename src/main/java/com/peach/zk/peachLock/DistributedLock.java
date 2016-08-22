@@ -38,10 +38,10 @@ public class DistributedLock {
         }
     }
 
-    public void unLock(){
+    public void unLock() {
         try {
             Stat stat = zk.exists(lockPath, false);
-            if(stat != null){
+            if (stat != null) {
                 zk.delete(lockPath, -1);
                 callBack.lockReleased();
             }
@@ -50,16 +50,14 @@ public class DistributedLock {
         }
     }
 
-    private synchronized void lock( ) {
+    private synchronized void lock() {
         logger.info("|| in lock");
         List<String> sortedChildren = getSortedChildren();
         try {
             int index = sortedChildren.indexOf(lockPath);
             switch (index) {
                 case 0:
-                    logger.info("||so happy, I get my lock");
-                    callBack.lockAcquired();
-                    countDownLatch.countDown();
+                    callback();
                     break;
                 case -1:
                     logger.error("|| has unknown bug");
@@ -67,7 +65,7 @@ public class DistributedLock {
                 default:
                     String preChildren = sortedChildren.get(index - 1);
                     Stat stat = zk.exists(preChildren, new NodeChangeWatcher());
-                    if(stat == null){
+                    if (stat == null) {
                         logger.warn("node {} had bean deleted", preChildren);
 //                        Thread.sleep(3000);
                         lock();
@@ -100,7 +98,7 @@ public class DistributedLock {
             List<String> childrenList = zk.getChildren(Constant.ZK_LOCK_PATH, false);
             //需要得到children node 的全路径，后面可以匹配该node
             for (String children : childrenList) {
-                fullpathChildrenList.add(Constant.ZK_LOCK_PATH +"/" + children);
+                fullpathChildrenList.add(Constant.ZK_LOCK_PATH + "/" + children);
             }
             sortedChildren = order.sortedCopy(fullpathChildrenList);
         } catch (KeeperException | InterruptedException e) {
@@ -114,8 +112,18 @@ public class DistributedLock {
         public void process(WatchedEvent watchedEvent) {
             if (watchedEvent.getType() == Event.EventType.NodeDeleted) {
                 logger.info("|| pre node changed");
-                lock();
+                try {
+                    callback();
+                } catch (InterruptedException e) {
+                    logger.error("", e);
+                }
             }
         }
+    }
+
+    private void callback() throws InterruptedException {
+        logger.info("||so happy, I get my lock");
+        callBack.lockAcquired();
+        countDownLatch.countDown();
     }
 }
