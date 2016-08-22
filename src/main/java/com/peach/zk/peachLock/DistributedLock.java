@@ -57,10 +57,9 @@ public class DistributedLock {
             int index = sortedChildren.indexOf(lockPath);
             switch (index) {
                 case 0:
-                    callback();
-                    break;
-                case -1:
-                    logger.error("||unknown bug");
+                    logger.info("||so happy, I get my lock");
+                    callBack.lockAcquired();
+                    countDownLatch.countDown();
                     break;
                 default:
                     String preChildren = sortedChildren.get(index - 1);
@@ -112,18 +111,10 @@ public class DistributedLock {
         public void process(WatchedEvent watchedEvent) {
             if (watchedEvent.getType() == Event.EventType.NodeDeleted) {
                 logger.info("|| pre node changed");
-                try {
-                    callback();
-                } catch (InterruptedException e) {
-                    logger.error("", e);
-                }
+                lock();
             }
         }
     }
 
-    private void callback() throws InterruptedException {
-        logger.info("||so happy, I get my lock");
-        callBack.lockAcquired();
-        countDownLatch.countDown();
-    }
+
 }
