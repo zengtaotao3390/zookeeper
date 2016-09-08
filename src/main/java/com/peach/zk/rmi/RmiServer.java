@@ -15,5 +15,6 @@ public class RmiServer {
         String url = "rmi://localhost:1099/RemoteApiImpl";
         LocateRegistry.createRegistry(port);
         Naming.rebind(url, new RemoteApiImpl());
+
     }
 }
