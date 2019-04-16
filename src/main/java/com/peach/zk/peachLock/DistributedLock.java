@@ -32,6 +32,7 @@ public class DistributedLock {
         createLock();
         lock();
         try {
+            //阻塞整个流程，得到锁之后才能执行下面的步骤
             countDownLatch.await();
         } catch (InterruptedException e) {
             logger.error("", e);
